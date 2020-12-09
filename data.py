@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+import sqlite3
+from typing import Iterable
+
+
+__file_name: str = None
+
+
+def init_db(file_name: str):
+    global __file_name
+    __file_name = file_name
+    __create_tables()
+
+
+def execute(query: str, *parameters):
+    conn = __create_connection()
+    c = conn.cursor()
+    c.execute(query, parameters)
+    conn.commit()
+    return c.lastrowid
+
+
+def fetch_one(query: str, *parameters):
+    conn = __create_connection()
+    c = conn.cursor()
+    c.execute(query, parameters)
+    return c.fetchone()
+
+
+def __create_connection():
+    global __file_name
+    return sqlite3.connect(__file_name)
+
+
+def __create_tables():
+    execute("""
+        CREATE TABLE IF NOT EXISTS employees (
+            employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            birthday INTEGER NOT NULL
+        )
+    """)
+    execute("""
+        CREATE TABLE IF NOT EXISTS orgs (
+            org_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employee_id INTEGER NOT NULL,
+            chat_id INTEGER NULL,
+            FOREIGN KEY(employee_id) REFERENCES eployees(employee_id)
+        )
+    """)
