@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import configparser
 import telebot
-from OrgRepo import OrgRepo
-from Org import Org
+from orgs import Org, OrgRepo
 
 config = configparser.ConfigParser()
 config.read("focus_bd_bot.ini")
