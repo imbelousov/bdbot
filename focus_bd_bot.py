@@ -24,6 +24,15 @@ def is_proper_context(message, expectedType) -> bool:
     return message.chat.id in contexts and type(contexts[message.chat.id]) == expectedType
 
 
+@bot.message_handler(commands=["cancel"])
+def cancel(message):
+    """
+    Команда /cancel сбрасывает текущий контекст
+    """
+
+    clear_context(message)
+
+
 @bot.message_handler(commands=["add"])
 def add_employee(message):
     """
@@ -71,6 +80,20 @@ def continue_add_employee(message):
         clear_context(message)
 
 
+@bot.message_handler(commands=["list"])
+def add_employee(message):
+    """
+    Команда /list выводит список всех зарегистрированных сотрудников
+    """
+
+    clear_context(message)
+
+    employee_repo = EmployeeRepo()
+    employees = employee_repo.find_all()
+    bot.send_message(message.chat.id, "\n".join(map(lambda x: "{0}. {1}".format(x.id, x.name), employees)))
+
+
+
 @bot.message_handler(func=lambda message: True)
 def help(message):
     """
@@ -78,7 +101,11 @@ def help(message):
     """
     
     clear_context(message)
-    bot.send_message(message.chat.id, "")
+    bot.send_message(message.chat.id, "\n".join([
+        "/add - Добавить нового сотрудника",
+        "/list - Показать всех сотрудников",
+        "/cancel - Отмена текущей команды"
+    ]))
 
 
 bot.polling()

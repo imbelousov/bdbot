@@ -33,7 +33,7 @@ class EmployeeRepo:
 
     def find_all(self) -> List[Employee]:
         list = []
-        rows = fetch_all("SELECT employee_id, name, birthday FROM employees ORDER BY name")
+        rows = fetch_all("SELECT employee_id, name, birthday FROM employees ORDER BY employee_id")
         for row in rows:
             list.append(self.__row_to_entity(row))
         return list
