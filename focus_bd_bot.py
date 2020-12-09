@@ -15,6 +15,10 @@ init_db(config["Sqlite"]["FileName"])
 contexts = {}
 
 
+def now() -> datetime.date:
+    return timestamp_to_date(time.time())
+
+
 def clear_context(message):
     if message.chat.id in contexts:
         del contexts[message.chat.id]
@@ -22,6 +26,21 @@ def clear_context(message):
 
 def is_proper_context(message, expectedType) -> bool:
     return message.chat.id in contexts and type(contexts[message.chat.id]) == expectedType
+
+
+def timestamp_to_date(ts: int) -> datetime.date:
+    return datetime.date.fromtimestamp(ts)
+
+
+def date_to_timestamp(dt: datetime.date) -> int:
+    return time.mktime(dt.timetuple())
+
+
+def calc_next_birthday(employee: Employee) -> datetime.date:
+    dt = timestamp_to_date(employee.birthday)
+    while dt < now():
+        dt = datetime.date(dt.year + 1, dt.month, dt.day)
+    return dt
 
 
 @bot.message_handler(commands=["cancel"])
@@ -87,11 +106,28 @@ def add_employee(message):
     """
 
     clear_context(message)
-
     employee_repo = EmployeeRepo()
     employees = employee_repo.find_all()
-    bot.send_message(message.chat.id, "\n".join(map(lambda x: "{0}. {1}".format(x.id, x.name), employees)))
+    bot.send_message(message.chat.id, "\n".join(map(lambda x: "{0}\t{1}\t\tСледующий ДР: {2}".format(x.id, x.name, calc_next_birthday(x)), employees)))
 
+
+@bot.message_handler(commands=["birthdays"])
+def add_employee(message):
+    """
+    Команда /birthdays выводит список ближайших дней рождений
+    """
+
+    clear_context(message)
+    employee_repo = EmployeeRepo()
+    employees = employee_repo.find_all()
+    employees = list(map(lambda x: (x, calc_next_birthday(x)), employees))
+    employees = list(map(lambda x: (x[0], x[1], x[1] - now()), employees))
+    employees = list(filter(lambda x: x[2].days < 60, employees))
+    employees.sort(key=lambda x: x[1])
+    if len(employees) > 0:
+        bot.send_message(message.chat.id, "\n".join(map(lambda x: "{0} - {1} (осталось {2} дней)".format(x[0].name, x[1], x[2].days), employees)))
+    else:
+        bot.send_message(message.chat.id, "В ближайшее время не ожидается дней рождений")
 
 
 @bot.message_handler(func=lambda message: True)
@@ -104,6 +140,7 @@ def help(message):
     bot.send_message(message.chat.id, "\n".join([
         "/add - Добавить нового сотрудника",
         "/list - Показать всех сотрудников",
+        "/birthdays - Показать ближайшие дни рождения",
         "/cancel - Отмена текущей команды"
     ]))
 
