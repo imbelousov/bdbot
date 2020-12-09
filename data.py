@@ -27,6 +27,13 @@ def fetch_one(query: str, *parameters):
     return c.fetchone()
 
 
+def fetch_all(query: str, *parameters):
+    conn = __create_connection()
+    c = conn.cursor()
+    c.execute(query, parameters)
+    return c.fetchall()
+
+
 def __create_connection():
     global __file_name
     return sqlite3.connect(__file_name)

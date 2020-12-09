@@ -25,7 +25,7 @@ def is_proper_context(message, expectedType) -> bool:
 
 
 @bot.message_handler(commands=["add"])
-def add_employee_message(message):
+def add_employee(message):
     """
     Команда /add добавляет нового сотрудника Фокуса в базу
     """
@@ -38,7 +38,7 @@ def add_employee_message(message):
 
 
 @bot.message_handler(func=lambda message: is_proper_context(message, Employee))
-def continue_add_employee_message(message):
+def continue_add_employee(message):
     """
     Продолжение работы команды /add
     """
@@ -69,6 +69,16 @@ def continue_add_employee_message(message):
         employee_repo.add(employee)
         bot.send_message(message.chat.id, "Сотрудник {0} сохранён в базе! Его идентификатор {1}.".format(employee.name, employee.id))
         clear_context(message)
+
+
+@bot.message_handler(func=lambda message: True)
+def help(message):
+    """
+    Вызов справки - команда по умолчанию
+    """
+    
+    clear_context(message)
+    bot.send_message(message.chat.id, "")
 
 
 bot.polling()
