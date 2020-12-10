@@ -62,9 +62,9 @@ def auth(message):
     
     clear_context(message)
     
-    #Шаг 1: Запрос имени текущего сотрудника
+    #Шаг 1: Запрос кода
     contexts[message.chat.id] = AuthContext()
-    bot.send_message(message.chat.id, "Как тебя зовут?")
+    bot.send_message(message.chat.id, "Напиши свой секретный код")
 
 
 @bot.message_handler(func=lambda message: is_proper_context(message, AuthContext))
@@ -73,12 +73,18 @@ def continue_auth(message):
     Продолжение работы команды /auth
     """
 
-    context = contexts[message.chat.id]
+    clear_context(message)
 
-    #Шаг 2: Поиск сотрудника с похожим именем в базе
-    if not context.found_employee:
-        clear_context(message)
-        bot.send_message(message.chat.id, "Я не нашёл никого с похожим именем. Оно точно верное?")
+    #Шаг 2: Поиск организатора с таким кодом
+    org_repo = OrgRepo()
+    employee_repo = EmployeeRepo()
+    org = org_repo.find_by_secret_code(message.text)
+    if org == None:
+        bot.send_message(message.chat.id, "Я не нашёл организатора с таким кодом.")
+        return
+    org_repo.set_chat_id(org.org_id, message.chat.id)
+    employee = employee_repo.find_by_id(org.employee_id)
+    bot.send_message(message.chat.id, "Привет, {0}!".format(employee.name))
 
 
 @bot.message_handler(commands=["add"])

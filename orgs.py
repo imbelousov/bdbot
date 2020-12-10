@@ -9,7 +9,7 @@ class Org:
     Модель организатора дней рождений
     """
 
-    id: int
+    org_id: int
     employee_id: str
     chat_id: int
 
@@ -20,4 +20,7 @@ class OrgRepo:
     """
 
     def find_by_chat_id(self, chat_id: int) -> Org:
+        return None
+    
+    def find_by_secret_code(self, secret_code: str) -> Org:
         return None

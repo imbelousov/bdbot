@@ -13,5 +13,4 @@ class AddEmployeeContext:
 @dataclass
 class AuthContext:
 
-    employee_id: int = 0
-    found_employee: bool = False
+    pass
