@@ -100,7 +100,7 @@ def continue_add_employee(message):
 
 
 @bot.message_handler(commands=["list"])
-def add_employee(message):
+def list_employees(message):
     """
     Команда /list выводит список всех зарегистрированных сотрудников
     """
@@ -112,7 +112,7 @@ def add_employee(message):
 
 
 @bot.message_handler(commands=["birthdays"])
-def add_employee(message):
+def list_birthdays(message):
     """
     Команда /birthdays выводит список ближайших дней рождений
     """
