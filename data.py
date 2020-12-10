@@ -52,6 +52,7 @@ def __create_tables():
             org_id INTEGER PRIMARY KEY AUTOINCREMENT,
             employee_id INTEGER NOT NULL,
             chat_id INTEGER NULL,
+            secret_code TEXT NOT NULL,
             FOREIGN KEY(employee_id) REFERENCES eployees(employee_id)
         )
     """)

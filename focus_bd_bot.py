@@ -7,6 +7,7 @@ from employees import Employee, EmployeeRepo
 from orgs import Org, OrgRepo
 from data import init_db
 from auth import auth_org
+from contexts import AddEmployeeContext, AuthContext
 
 
 config = configparser.ConfigParser()
@@ -53,6 +54,33 @@ def cancel(message):
     clear_context(message)
 
 
+@bot.message_handler(commands=["auth"])
+def auth(message):
+    """
+    Команда /auth авторизует текущего пользователя как организатора дней рождений
+    """
+    
+    clear_context(message)
+    
+    #Шаг 1: Запрос имени текущего сотрудника
+    contexts[message.chat.id] = AuthContext()
+    bot.send_message(message.chat.id, "Как тебя зовут?")
+
+
+@bot.message_handler(func=lambda message: is_proper_context(message, AuthContext))
+def continue_auth(message):
+    """
+    Продолжение работы команды /auth
+    """
+
+    context = contexts[message.chat.id]
+
+    #Шаг 2: Поиск сотрудника с похожим именем в базе
+    if not context.found_employee:
+        clear_context(message)
+        bot.send_message(message.chat.id, "Я не нашёл никого с похожим именем. Оно точно верное?")
+
+
 @bot.message_handler(commands=["add"])
 @auth_org(bot)
 def add_employee(message):
@@ -63,22 +91,22 @@ def add_employee(message):
     clear_context(message)
 
     # Шаг 1: Запрос имени сотрудника
-    contexts[message.chat.id] = Employee(None, None)
+    contexts[message.chat.id] = AddEmployeeContext()
     bot.send_message(message.chat.id, "Как зовут нового сотрудника?")
 
 
-@bot.message_handler(func=lambda message: is_proper_context(message, Employee))
+@bot.message_handler(func=lambda message: is_proper_context(message, AddEmployeeContext))
 @auth_org(bot)
 def continue_add_employee(message):
     """
     Продолжение работы команды /add
     """
 
-    employee = contexts[message.chat.id]
+    context = contexts[message.chat.id]
     employee_repo = EmployeeRepo()
 
     # Шаг 2: Сохранение имени сотрудника и запрос даты рождения
-    if employee.name == None:
+    if not context.has_name:
         if str.isspace(message.text):
             bot.send_message(message.chat.id, "Это не имя. Напиши ещё раз.")
             return
@@ -87,18 +115,19 @@ def continue_add_employee(message):
             bot.send_message(message.chat.id, "Такой сотрудник уже есть в базе. Его идентификатор {0}.".format(another_employee.id))
             clear_context(message)
             return
-        employee.name = message.text
+        context.employee.name = message.text
+        context.has_name = True
         bot.send_message(message.chat.id, "А когда он родился? Формат даты: DD.MM.YYYY.")
     
     # Шаг 3: Сохранение даты рождения сотрудника и запись в БД
     else:
         try:
-            employee.birthday = time.mktime(datetime.datetime.strptime(message.text, "%d.%m.%Y").timetuple())
+            context.employee.birthday = time.mktime(datetime.datetime.strptime(message.text, "%d.%m.%Y").timetuple())
         except:
             bot.send_message(message.chat.id, "Я не смог прочитать эту дату. Напиши ещё раз.")
             return
-        employee_repo.add(employee)
-        bot.send_message(message.chat.id, "Сотрудник {0} сохранён в базе! Его идентификатор {1}.".format(employee.name, employee.id))
+        employee_repo.add(context.employee)
+        bot.send_message(message.chat.id, "Сотрудник {0} сохранён в базе! Его идентификатор {1}.".format(context.employee.name, context.employee.id))
         clear_context(message)
 
 
