@@ -19,4 +19,5 @@ class OrgRepo:
     Предоставляет доступ к хранилищу организаторов дней рождений
     """
 
-    pass
+    def find_by_chat_id(self, chat_id: int) -> Org:
+        return None

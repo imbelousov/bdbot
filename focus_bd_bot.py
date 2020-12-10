@@ -6,6 +6,7 @@ import datetime
 from employees import Employee, EmployeeRepo
 from orgs import Org, OrgRepo
 from data import init_db
+from auth import auth_org
 
 
 config = configparser.ConfigParser()
@@ -53,6 +54,7 @@ def cancel(message):
 
 
 @bot.message_handler(commands=["add"])
+@auth_org(bot)
 def add_employee(message):
     """
     Команда /add добавляет нового сотрудника Фокуса в базу
@@ -66,6 +68,7 @@ def add_employee(message):
 
 
 @bot.message_handler(func=lambda message: is_proper_context(message, Employee))
+@auth_org(bot)
 def continue_add_employee(message):
     """
     Продолжение работы команды /add
@@ -100,6 +103,7 @@ def continue_add_employee(message):
 
 
 @bot.message_handler(commands=["list"])
+@auth_org(bot)
 def list_employees(message):
     """
     Команда /list выводит список всех зарегистрированных сотрудников
@@ -112,6 +116,7 @@ def list_employees(message):
 
 
 @bot.message_handler(commands=["birthdays"])
+@auth_org(bot)
 def list_birthdays(message):
     """
     Команда /birthdays выводит список ближайших дней рождений
@@ -131,6 +136,7 @@ def list_birthdays(message):
 
 
 @bot.message_handler(func=lambda message: True)
+@auth_org(bot)
 def help(message):
     """
     Вызов справки - команда по умолчанию
