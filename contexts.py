@@ -11,6 +11,11 @@ class AddEmployeeContext:
 
 
 @dataclass
+class AddOrgContext:
+
+    pass
+
+@dataclass
 class AuthContext:
 
     pass

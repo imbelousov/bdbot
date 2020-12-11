@@ -31,12 +31,19 @@ class EmployeeRepo:
         row = fetch_one("SELECT employee_id, name, birthday FROM employees WHERE name = ?", name)
         return self.__row_to_entity(row)
 
+    def find_by_part_of_name(self, part_of_name: str) -> List[Employee]:
+        parts = list(filter(lambda x: x.strip() != "", part_of_name.split(" ")))
+        parts = list(map(lambda x: "{0}%".format(x), parts))
+        if len(parts) == 0:
+            return []
+        query = " and ".join(map(lambda x: "UPPER(name) LIKE UPPER(?)", parts))
+        rows = fetch_all("SELECT employee_id, name, birthday FROM employees WHERE {0}".format(query), *parts)
+        return list(map(lambda x: self.__row_to_entity(x), rows))
+
     def find_all(self) -> List[Employee]:
         list = []
         rows = fetch_all("SELECT employee_id, name, birthday FROM employees ORDER BY employee_id")
-        for row in rows:
-            list.append(self.__row_to_entity(row))
-        return list
+        return list(map(lambda x: self.__row_to_entity(x), rows))
     
     def __row_to_entity(self, row):
         if row == None:
