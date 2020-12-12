@@ -9,7 +9,6 @@ __file_name: str = None
 def init_db(file_name: str):
     global __file_name
     __file_name = file_name
-    __create_tables()
 
 
 def execute(query: str, *parameters):
@@ -39,7 +38,7 @@ def __create_connection():
     return sqlite3.connect(__file_name)
 
 
-def __create_tables():
+def create_tables():
     execute("""
         CREATE TABLE IF NOT EXISTS employees (
             employee_id INTEGER PRIMARY KEY AUTOINCREMENT,

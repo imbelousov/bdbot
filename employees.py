@@ -38,12 +38,11 @@ class EmployeeRepo:
             return []
         query = " and ".join(map(lambda x: "UPPER(name) LIKE UPPER(?)", parts))
         rows = fetch_all("SELECT employee_id, name, birthday FROM employees WHERE {0}".format(query), *parts)
-        return list(map(lambda x: self.__row_to_entity(x), rows))
+        return list(map(self.__row_to_entity, rows))
 
     def find_all(self) -> List[Employee]:
-        list = []
         rows = fetch_all("SELECT employee_id, name, birthday FROM employees ORDER BY employee_id")
-        return list(map(lambda x: self.__row_to_entity(x), rows))
+        return list(map(self.__row_to_entity, rows))
     
     def __row_to_entity(self, row):
         if row == None:
