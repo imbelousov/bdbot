@@ -5,7 +5,7 @@ import random
 import string
 from data.sql import init_db
 from data.employees import EmployeeRepo
-from data.orgs import Org, OrgRepo
+from data.orgs import Org, OrgRepo, Role
 from auth import auth_org
 from contexts import *
 from dates import *
@@ -159,7 +159,7 @@ def main():
 
 
     @bot.message_handler(commands=["addorg"])
-    @auth_org(bot)
+    @auth_org(bot, Role.ADMIN)
     def add_org(message):
         """
         Команда /addorg добавляет нового организатора дней рождений
@@ -173,7 +173,7 @@ def main():
 
 
     @bot.message_handler(func=lambda message: is_proper_context(message, AddOrgContext))
-    @auth_org(bot)
+    @auth_org(bot, Role.ADMIN)
     def continue_add_org(message):
         """
         Продолжение работы команды /addorg
@@ -205,9 +205,24 @@ def main():
             bot.send_message(message.chat.id, "{0} уже является организатором дней рождений.".format(employee.name))
             clear_context(message)
             return
-        org = Org(employee.id, 0, generate_secret_code())
+        org = Org(employee.id, 0, generate_secret_code(), Role.USER)
         org_repo.add(org)
         bot.send_message(message.chat.id, "{0} стал организатором дней рождений. Не забудь отправить ему секретный код: `{1}`.".format(employee.name, org.secret_code))
+
+
+    @bot.message_handler(commands=["listorg"])
+    @auth_org(bot)
+    def list_orgs(message):
+        """
+        Команда /listorg выводит список организаторов
+        """
+
+        clear_context(message)
+        org_repo = OrgRepo()
+        employee_repo = EmployeeRepo()
+        orgs = org_repo.find_all()
+        orgs = map(lambda x: (employee_repo.find_by_id(x.employee_id), x), orgs)
+        bot.send_message(message.chat.id, "\n".join(map(lambda x: x[0].name if x[1].role != Role.ADMIN else "★ " + x[0].name, orgs)))
 
 
     @bot.message_handler(func=lambda message: True)
@@ -224,6 +239,7 @@ def main():
             "/birthdays - Показать ближайшие дни рождения",
             "",
             "/addorg - Добавить организатора дней рождений",
+            "/listorg - Показать всех организаторов дней рождений",
             "",
             "/cancel - Отмена текущей команды"
         ]))

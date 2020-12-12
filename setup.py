@@ -2,7 +2,7 @@
 import configparser
 from data.sql import init_db, create_tables
 from data.employees import Employee, EmployeeRepo
-from data.orgs import Org, OrgRepo
+from data.orgs import Org, OrgRepo, Role
 from dates import *
 from focus_bd_bot import generate_secret_code
 
@@ -25,7 +25,7 @@ def main():
 
     employee = Employee(name, birthday)
     employee_repo.add(employee)
-    org = Org(employee.id, 0, generate_secret_code())
+    org = Org(employee.id, 0, generate_secret_code(), Role.ADMIN)
     org_repo.add(org)
 
     print("Организатор зарегистрирован. Его секретный код: {0}.".format(org.secret_code))

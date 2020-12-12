@@ -51,6 +51,7 @@ def create_tables():
             employee_id INTEGER NOT NULL,
             chat_id INTEGER NULL,
             secret_code TEXT NOT NULL,
+            role INTEGER NOT NULL,
             FOREIGN KEY(employee_id) REFERENCES eployees(employee_id)
         )
     """)
