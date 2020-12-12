@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import configparser
-from data import init_db, create_tables
-from employees import Employee, EmployeeRepo
-from orgs import Org, OrgRepo
+from data.sql import init_db, create_tables
+from data.employees import Employee, EmployeeRepo
+from data.orgs import Org, OrgRepo
 from dates import *
-from secret_codes import *
+from focus_bd_bot import generate_secret_code
 
 
 def main():

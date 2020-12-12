@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 import configparser
 import telebot
-from data import init_db
-from employees import Employee, EmployeeRepo
-from orgs import Org, OrgRepo
+import random
+import string
+from data.sql import init_db
+from data.employees import EmployeeRepo
+from data.orgs import Org, OrgRepo
 from auth import auth_org
 from contexts import *
 from dates import *
-from secret_codes import *
+
+
+def generate_secret_code() -> str:
+    return "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=48))
 
 
 def main():
@@ -142,9 +147,10 @@ def main():
         clear_context(message)
         employee_repo = EmployeeRepo()
         employees = employee_repo.find_all()
-        employees = list(map(lambda x: (x, calc_next_birthday(timestamp_to_date(x.birthday))), employees))
-        employees = list(map(lambda x: (x[0], x[1], x[1] - now()), employees))
-        employees = list(filter(lambda x: x[2].days < 60, employees))
+        employees = map(lambda x: (x, calc_next_birthday(timestamp_to_date(x.birthday))), employees)
+        employees = map(lambda x: (x[0], x[1], x[1] - now()), employees)
+        employees = filter(lambda x: x[2].days < 60, employees)
+        employees = list(employees)
         employees.sort(key=lambda x: x[1])
         if len(employees) > 0:
             bot.send_message(message.chat.id, "\n".join(map(lambda x: "{0} - {1} (осталось {2} дней)".format(x[0].name, x[1], x[2].days), employees)))

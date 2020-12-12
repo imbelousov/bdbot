@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import sqlite3
-from typing import Iterable
 
 
 __file_name: str = None

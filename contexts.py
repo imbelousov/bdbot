@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from dataclasses import dataclass
-from employees import Employee
+from data.employees import Employee
 
 
 @dataclass

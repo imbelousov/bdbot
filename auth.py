@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from telebot import TeleBot
-from orgs import Org, OrgRepo
+from data.orgs import OrgRepo
 
 
 def auth_org(bot: TeleBot):

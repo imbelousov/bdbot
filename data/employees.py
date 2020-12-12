@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from dataclasses import dataclass
 from typing import List
-from data import execute, fetch_one, fetch_all
+from data.sql import execute, fetch_one, fetch_all
 
 
 @dataclass

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from dataclasses import dataclass
-from data import execute, fetch_one
+from data.sql import execute, fetch_one
 
 
 @dataclass
