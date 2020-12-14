@@ -3,7 +3,7 @@ import datetime
 import time
 
 
-def now() -> datetime.date:
+def today() -> datetime.date:
     return timestamp_to_date(time.time())
 
 
@@ -20,6 +20,6 @@ def date_to_timestamp(dt: datetime.date) -> int:
 
 
 def calc_next_birthday(dt: datetime.date) -> datetime.date:
-    while dt < now():
+    while dt < today():
         dt = datetime.date(dt.year + 1, dt.month, dt.day)
     return dt

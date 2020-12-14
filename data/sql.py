@@ -55,3 +55,11 @@ def create_tables():
             FOREIGN KEY(employee_id) REFERENCES eployees(employee_id)
         )
     """)
+    execute("""
+        CREATE TABLE IF NOT EXISTS scheduled_birthdays (
+            employee_id INTEGER NOT NULL,
+            date INTEGER NOT NULL,
+            PRIMARY KEY(employee_id, date),
+            FOREIGN KEY(employee_id) REFERENCES eployees(employee_id)
+        )
+    """)

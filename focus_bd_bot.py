@@ -9,6 +9,7 @@ from data.orgs import Org, OrgRepo, Role
 from auth import auth_org
 from contexts import *
 from dates import *
+from announcer import Announcer
 
 
 def generate_secret_code() -> str:
@@ -21,6 +22,7 @@ def main():
     bot = telebot.TeleBot(config["Api"]["Token"])
     init_db(config["Sqlite"]["FileName"])
     contexts = {}
+    announcer = Announcer()
 
 
     def clear_context(message):
@@ -30,6 +32,14 @@ def main():
 
     def is_proper_context(message, expectedType) -> bool:
         return message.chat.id in contexts and type(contexts[message.chat.id]) == expectedType
+
+
+    def get_full_name(org: Org) -> str:
+        employee_repo = EmployeeRepo()
+        employee = employee_repo.find_by_id(org.employee_id)
+        if org.role == Role.ADMIN:
+            return "★ {0}".format(employee.name)
+        return employee.name
 
 
     @bot.message_handler(commands=["cancel"])
@@ -148,7 +158,7 @@ def main():
         employee_repo = EmployeeRepo()
         employees = employee_repo.find_all()
         employees = map(lambda x: (x, calc_next_birthday(timestamp_to_date(x.birthday))), employees)
-        employees = map(lambda x: (x[0], x[1], x[1] - now()), employees)
+        employees = map(lambda x: (x[0], x[1], x[1] - today()), employees)
         employees = filter(lambda x: x[2].days < 60, employees)
         employees = list(employees)
         employees.sort(key=lambda x: x[1])
@@ -219,10 +229,8 @@ def main():
 
         clear_context(message)
         org_repo = OrgRepo()
-        employee_repo = EmployeeRepo()
         orgs = org_repo.find_all()
-        orgs = map(lambda x: (employee_repo.find_by_id(x.employee_id), x), orgs)
-        bot.send_message(message.chat.id, "\n".join(map(lambda x: x[0].name if x[1].role != Role.ADMIN else "★ " + x[0].name, orgs)))
+        bot.send_message(message.chat.id, "\n".join(map(lambda x: get_full_name(x), orgs)))
 
 
     @bot.message_handler(func=lambda message: True)
@@ -245,6 +253,7 @@ def main():
         ]))
 
 
+    announcer.start()
     bot.polling()
 
 
