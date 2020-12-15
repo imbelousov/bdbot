@@ -59,7 +59,18 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS scheduled_birthdays (
             employee_id INTEGER NOT NULL,
             date INTEGER NOT NULL,
-            PRIMARY KEY(employee_id, date),
+            preliminary INTEGER NOT NULL,
+            PRIMARY KEY(employee_id, date, preliminary),
             FOREIGN KEY(employee_id) REFERENCES eployees(employee_id)
+        )
+    """)
+    execute("""
+        CREATE TABLE IF NOT EXISTS announces (
+            announce_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            org_id INTEGER NOT NULL,
+            type TEXT NOT NULL,
+            data TEXT NULL,
+            is_sent INTEGER NOT NULL,
+            FOREIGN KEY(org_id) REFERENCES orgs(org_id)
         )
     """)
